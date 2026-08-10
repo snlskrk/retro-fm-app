@@ -132,110 +132,17 @@
     <script>
         const PROXY_BASE = "https://retro-proxy-pt9j.onrender.com/stream?channel=";
 
-        // İstanbul 100 Frekans Şeması (Tanımlı kanallar key içerir)
         const stations = [
             { freq: 87.5, name: "TRT Radyo 1" },
             { freq: 87.7, name: "Slow Türk", key: "slowturk" },
-            { freq: 88.0, name: "TRT FM" },
-            { freq: 88.2, name: "TRT Radyo 3" },
-            { freq: 88.4, name: "Lalegül FM" },
-            { freq: 88.6, name: "İstanbul'un Sesi" },
-            { freq: 88.8, name: "Radyo Ahenk" },
             { freq: 89.0, name: "Joy Türk", key: "joyturk" },
-            { freq: 89.2, name: "Alem FM" },
-            { freq: 89.4, name: "Radyo 7" },
-            { freq: 89.6, name: "Kafa Radyo" },
-            { freq: 89.8, name: "Show Radyo" },
-            { freq: 90.0, name: "Radyo Viva" },
-            { freq: 90.2, name: "Turkuvaz Radyo" },
             { freq: 90.4, name: "Süper FM", key: "superfm" },
-            { freq: 90.6, name: "Radyo 2000" },
-            { freq: 90.8, name: "Süper FM" },
             { freq: 91.0, name: "Kral FM", key: "kralfm" },
-            { freq: 91.2, name: "Radyo Alaturka" },
-            { freq: 91.4, name: "Radyo K3" },
-            { freq: 91.6, name: "Radyo 34" },
-            { freq: 91.8, name: "Radyo 24" },
             { freq: 92.0, name: "Kral Pop", key: "kralpop" },
-            { freq: 92.2, name: "Lig Radyo" },
-            { freq: 92.4, name: "Meteoroloji FM" },
-            { freq: 92.6, name: "CNN Türk Radyo" },
-            { freq: 92.8, name: "Bloombag HT Radyo" },
-            { freq: 93.0, name: "A Spor Radyo" },
-            { freq: 93.2, name: "TGRT FM" },
-            { freq: 93.4, name: "Radyo 1" },
-            { freq: 93.6, name: "Radyo D" },
-            { freq: 93.8, name: "FG Radio" },
-            { freq: 94.0, name: "Medya FM" },
-            { freq: 94.2, name: "Radyo Müzik" },
-            { freq: 94.4, name: "Radyo Başakşehir" },
-            { freq: 94.6, name: "Radyo Meryem" },
-            { freq: 94.8, name: "Kral Pop 2" },
-            { freq: 95.0, name: "Alem FM 2" },
-            { freq: 95.2, name: "A Haber Radyo" },
-            { freq: 95.4, name: "Slow Türk" },
-            { freq: 95.6, name: "TRT Kent Radyo" },
-            { freq: 95.8, name: "Açık Radyo" },
-            { freq: 96.0, name: "Lounge FM" },
             { freq: 96.2, name: "Metro FM", key: "metrofm" },
-            { freq: 96.4, name: "Cem Radyo" },
-            { freq: 96.6, name: "Yön Radyo" },
-            { freq: 96.8, name: "NTV Radyo" },
-            { freq: 97.0, name: "Radyo Fenerbahçe" },
-            { freq: 97.2, name: "Metro FM" },
-            { freq: 97.4, name: "Radyo Trafik" },
-            { freq: 97.6, name: "Kafa Radyo 2" },
-            { freq: 97.8, name: "RS FM" },
-            { freq: 98.0, name: "Diyanet Radyo" },
-            { freq: 98.2, name: "Karadeniz FM" },
-            { freq: 98.4, name: "Best FM" },
-            { freq: 98.6, name: "Radyo 35" },
-            { freq: 98.8, name: "Star Artı" },
-            { freq: 99.0, name: "Pal FM" },
-            { freq: 99.2, name: "Pal Nostalji" },
-            { freq: 99.4, name: "Pal Station" },
-            { freq: 99.6, name: "TRT Türkü" },
-            { freq: 99.8, name: "PowerTürk" },
             { freq: 100.0, name: "Power FM", key: "powerfm" },
-            { freq: 100.2, name: "Power Pop" },
-            { freq: 100.4, name: "Radyo Spor" },
             { freq: 100.6, name: "Joy FM", key: "joyfm" },
-            { freq: 100.8, name: "Joy Türk Akustik" },
             { freq: 101.0, name: "Virgin Radio", key: "virgin" },
-            { freq: 101.2, name: "Radyo Mega" },
-            { freq: 101.4, name: "Kentsel FM" },
-            { freq: 101.6, name: "TRT Nagme" },
-            { freq: 101.8, name: "Diyanet Kur'an Radyo" },
-            { freq: 102.0, name: "Number1 FM" },
-            { freq: 102.2, name: "Number1 Türk" },
-            { freq: 102.4, name: "Radyo Yakamoz" },
-            { freq: 102.6, name: "Radyo Fırtına" },
-            { freq: 102.8, name: "Açık Radyo 2" },
-            { freq: 103.0, name: "A Spor 2" },
-            { freq: 103.2, name: "Özgür Radyo" },
-            { freq: 103.4, name: "TRT World Radio" },
-            { freq: 103.6, name: "Radyo Light" },
-            { freq: 103.8, name: "Radyo Darüşşafaka" },
-            { freq: 104.0, name: "Radyo D 2" },
-            { freq: 104.2, name: "Radyo Seymen" },
-            { freq: 104.4, name: "Bizim Radyo" },
-            { freq: 104.6, name: "Radyo 7 Nostalji" },
-            { freq: 104.8, name: "Pal Akustik" },
-            { freq: 105.0, name: "Erkam Radyo" },
-            { freq: 105.2, name: "Vav Radyo" },
-            { freq: 105.4, name: "Habertürk Radyo" },
-            { freq: 105.6, name: "Baba Radyo" },
-            { freq: 105.8, name: "Alem FM 3" },
-            { freq: 106.0, name: "Radyo Eksen" },
-            { freq: 106.2, name: "Virgin Radio" },
-            { freq: 106.4, name: "Diyanet Çocuk" },
-            { freq: 106.6, name: "Pal FM 2" },
-            { freq: 106.8, name: "TRT Haber Radyo" },
-            { freq: 107.0, name: "Radyo Seymen 2" },
-            { freq: 107.2, name: "Radyo Spor 2" },
-            { freq: 107.4, name: "Radyo Vatan" },
-            { freq: 107.6, name: "Akra FM" },
-            { freq: 107.8, name: "Radyo Martı" },
             { freq: 108.0, name: "PowerTürk", key: "powerturk" }
         ];
 
@@ -327,14 +234,13 @@
             const streamUrl = PROXY_BASE + station.key;
 
             try {
-                // Ön kontrol isteği ile HTTP durum kodunu yakala
                 const response = await fetch(streamUrl, { method: 'GET', cache: 'no-store' });
 
                 if (!response.ok) {
-                    if (response.status === 404) statusText.innerText = "YAYIN SUNUCUDA BULUNAMADI (404)";
-                    else if (response.status === 403) statusText.innerText = "YAYIN BAĞLANTISI REDDEDİLDİ (403)";
-                    else if (response.status === 504) statusText.innerText = "SUNUCU ZAMAN AŞIMI (504 / RENDER UYUYOR)";
-                    else statusText.innerText = `BAĞLANTI HATASI (HTTP ${response.status})`;
+                    if (response.status === 404) statusText.innerText = "YAYIN BULUNAMADI (404)";
+                    else if (response.status === 403) statusText.innerText = "BAĞLANTI REDDEDİLDİ (403)";
+                    else if (response.status === 504) statusText.innerText = "ZAMAN AŞIMI (504 / RENDER UYUYOR)";
+                    else statusText.innerText = `SUNUCU HATASI (HTTP ${response.status})`;
                     return;
                 }
 
@@ -350,7 +256,7 @@
                             statusText.innerText = "YAYINDA";
                         });
                         hlsInstance.on(Hls.Events.ERROR, (event, data) => {
-                            if (data.fatal) statusText.innerText = "HLS AKIŞ AYRIŞTIRMA HATASI";
+                            if (data.fatal) statusText.innerText = "HLS AKIŞ HATASI";
                         });
                     } else if (audio.canPlayType('application/vnd.apple.mpegurl')) {
                         audio.src = streamUrl;
@@ -437,4 +343,4 @@
         updateDisplay(currentFreq);
     </script>
 </body>
-</ht
+</html>
