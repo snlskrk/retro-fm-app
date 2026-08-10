@@ -2,53 +2,55 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RetroFM · Master</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RetroFM Master</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
-        /* [Buradaki CSS kodların aynı kalabilir, tasarımını bozmayalım] */
-        body, html { width: 100%; height: 100%; overflow: hidden; font-family: 'Share Tech Mono', monospace; background: #050302; display: flex; justify-content: center; align-items: center; }
-        .radio-cabinet { width: 95%; max-width: 420px; background: linear-gradient(135deg, #3d1a08, #1a0a03); border: 10px solid #0a0402; border-radius: 28px; padding: 18px; box-shadow: 0 30px 70px rgba(0,0,0,0.95); display: flex; flex-direction: column; gap: 12px; }
-        .screen-box { background: #020802; border: 3px solid #0d1f0f; border-radius: 10px; padding: 12px; text-align: center; }
-        .freq-display { font-size: 2.2rem; color: #33ff33; }
-        .power-btn { background: #4a3008; border: 3px solid #f3e5ab; color: #f3e5ab; padding: 8px 16px; border-radius: 20px; cursor: pointer; }
-        .power-btn.active { background: #1a520c; border-color: #33ff33; color: #33ff33; }
+        body { background: #050302; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; color: white; }
+        .radio { background: #3d1a08; padding: 20px; border-radius: 20px; text-align: center; border: 5px solid #0a0402; }
+        #powerBtn { z-index: 999; padding: 15px 30px; font-size: 1.2rem; cursor: pointer; background: #4a3008; color: white; border: none; }
+        .active { background: #1a520c !important; }
+        #statusText { margin-top: 10px; font-size: 0.8rem; color: #aaa; }
     </style>
 </head>
 <body>
-    <div class="radio-cabinet">
-        <div class="screen-box">
-            <div class="freq-display" id="freqDisplay">100.0 MHz</div>
-            <div id="stationDisplay">RADYO KAPALI</div>
-        </div>
-        <button class="power-btn" id="powerBtn">GÜÇ: KAPALI</button>
-        <div id="statusText">Güç düğmesine basın</div>
+    <div class="radio">
+        <div id="freqDisplay">100.0 MHz</div>
+        <button id="powerBtn">GÜÇ: KAPALI</button>
+        <div id="statusText">Düğmeye basın</div>
     </div>
     <audio id="audioPlayer"></audio>
+
     <script>
         const PROXY_BASE = "https://retro-proxy-pt9j.onrender.com/stream?channel=";
-        const stations = [
-            { freq: 87.7, name: "Slow Türk", key: "slowturk" },
-            { freq: 91.0, name: "Kral FM", key: "kralfm" },
-            { freq: 92.0, name: "Kral Pop", key: "kralpop" },
-            { freq: 100.0, name: "Power FM", key: "powerfm" },
-            { freq: 108.0, name: "Power Türk", key: "powerturk" }
-        ];
+        const audio = document.getElementById('audioPlayer');
+        const powerBtn = document.getElementById('powerBtn');
+        const statusText = document.getElementById('statusText');
+        let isPoweredOn = false;
 
-        // [Buraya handleMove, playStation vb. fonksiyonlarını önceki koddan ekleyebilirsin]
-        // Kilit nokta playStation fonksiyonunda:
-        function playStation(station) {
-            if(!station.key) return;
-            const url = PROXY_BASE + station.key;
-            if(Hls.isSupported() && url.includes('m3u8')) {
-                const hls = new Hls();
-                hls.loadSource(url);
-                hls.attachMedia(document.getElementById('audioPlayer'));
+        powerBtn.addEventListener('click', async () => {
+            // Tarayıcı kuralı: Kullanıcı etkileşimi olmadan ses başlamaz
+            if (audio.paused) {
+                try {
+                    isPoweredOn = true;
+                    powerBtn.classList.add('active');
+                    powerBtn.innerText = "GÜÇ: AÇIK";
+                    statusText.innerText = "Bağlanıyor...";
+                    
+                    audio.src = PROXY_BASE + "kralfm"; // Varsayılan kanal
+                    await audio.play();
+                    statusText.innerText = "YAYINDA";
+                } catch(e) {
+                    statusText.innerText = "HATA: " + e.message;
+                }
             } else {
-                document.getElementById('audioPlayer').src = url;
+                isPoweredOn = false;
+                powerBtn.classList.remove('active');
+                powerBtn.innerText = "GÜÇ: KAPALI";
+                audio.pause();
+                statusText.innerText = "Güç kapalı";
             }
-            document.getElementById('audioPlayer').play();
-        }
+        });
     </script>
 </body>
 </html>
