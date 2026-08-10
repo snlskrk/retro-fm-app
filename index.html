@@ -3,24 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RetroFM · Universal Player</title>
+    <title>RetroFM · Master Vintage</title>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Special+Elite&display=swap" rel="stylesheet">
-    <!-- M3U8 / HLS Yayın Desteği İçin Kütüphane -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-        body, html { width: 100%; height: 100%; overflow: hidden; font-family: 'Share Tech Mono', monospace; background: #0c0806; display: flex; justify-content: center; align-items: center; }
+        body, html { width: 100%; height: 100%; overflow: hidden; font-family: 'Share Tech Mono', monospace; background: #050302; display: flex; justify-content: center; align-items: center; }
 
-        .radio-panel {
-            width: 94%; max-width: 410px; background: linear-gradient(145deg, #2b1206, #140702);
-            border: 8px solid #050201; border-radius: 20px; padding: 16px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.9), inset 0 0 30px rgba(0,0,0,0.7);
+        /* Nostaljik Ahşap Kasa */
+        .radio-cabinet {
+            width: 95%; max-width: 420px;
+            background: linear-gradient(135deg, #3d1a08, #1a0a03);
+            border: 10px solid #0a0402; border-radius: 28px; padding: 18px;
+            box-shadow: 0 30px 70px rgba(0,0,0,0.95), inset 0 0 40px rgba(0,0,0,0.8);
             display: flex; flex-direction: column; gap: 12px; position: relative;
         }
 
-        .brand-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #3d1a08; padding-bottom: 8px; }
-        .logo { font-family: 'Special Elite', cursive; color: #f3e5ab; font-size: 1rem; letter-spacing: 2px; }
+        /* Pirinç Etiket */
+        .brass-badge {
+            position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+            background: linear-gradient(to bottom, #f3e5ab, #b8860b); color: #0f0703;
+            font-family: 'Special Elite', cursive; font-size: 0.75rem; padding: 2px 16px;
+            border-radius: 4px; border: 2px solid #3d1a08; box-shadow: 0 4px 8px rgba(0,0,0,0.6);
+            letter-spacing: 2px;
+        }
+
+        /* Ekran ve Ekolayzır */
+        .screen-box {
+            background: #020802; border: 3px solid #0d1f0d; border-radius: 10px;
+            padding: 12px; text-align: center; box-shadow: inset 0 0 20px rgba(0,255,0,0.2);
+            display: flex; flex-direction: column; gap: 8px;
+        }
+        .freq-display { font-size: 2.2rem; color: #33ff33; text-shadow: 0 0 12px rgba(51,255,51,0.7); }
+        .station-display { font-size: 0.85rem; color: #ffb703; letter-spacing: 1px; }
+
+        /* Ekolayzır Barları */
+        .equalizer-container {
+            display: flex; justify-content: center; align-items: flex-end; gap: 4px; height: 30px;
+            background: #000; border-radius: 4px; padding: 4px; border: 1px solid #112211;
+        }
+        .eq-bar {
+            flex: 1; max-width: 12px; background: #113311; border-radius: 2px;
+            height: 10%; transition: height 0.08s ease;
+        }
+        .eq-bar.active {
+            background: linear-gradient(to top, #33ff33 60%, #ffff33 85%, #ff3333 100%);
+            box-shadow: 0 0 5px rgba(51,255,51,0.5);
+        }
+
+        /* Analog FM Skalası */
+        .scale-container {
+            width: 100%; background: #120803; border: 3px solid #2b180d; border-radius: 8px;
+            padding: 10px 8px; position: relative; cursor: ew-resize; touch-action: none;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.9);
+        }
+        .scale-bar { position: relative; height: 20px; width: 100%; }
+        .scale-line { position: absolute; top: 9px; left: 0; right: 0; height: 2px; background: #b8860b; }
+        .scale-needle {
+            position: absolute; top: 0px; width: 3px; height: 20px; background: #ff3333;
+            box-shadow: 0 0 8px #ff3333; transform: translateX(-50%); transition: left 0.05s linear; z-index: 5;
+        }
+        .scale-labels { display: flex; justify-content: space-between; font-size: 0.55rem; color: #b09b85; margin-top: 4px; }
+
+        /* Kontrol Paneli (Güç + Ses Potu) */
+        .controls-row {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #120501; border: 2px solid #2b180d; border-radius: 10px; padding: 10px 14px;
+        }
         
         .power-btn {
             background: #4a3008; border: 3px solid #f3e5ab; color: #f3e5ab;
@@ -30,44 +80,37 @@
         }
         .power-btn.active { background: #1a520c; border-color: #33ff33; color: #33ff33; box-shadow: 0 0 15px #33ff33; }
 
-        .screen-box { background: #030703; border: 3px solid #0f1f0f; border-radius: 8px; padding: 10px; text-align: center; box-shadow: inset 0 0 15px rgba(0,255,0,0.15); }
-        .freq-text { font-size: 2rem; color: #33ff33; text-shadow: 0 0 10px rgba(51,255,51,0.6); }
-        .station-text { font-size: 0.8rem; color: #ffb703; margin-top: 2px; letter-spacing: 1px; }
-
-        .scale-container {
-            width: 100%; background: #120803; border: 3px solid #2b180d; border-radius: 8px;
-            padding: 10px 8px; position: relative; cursor: ew-resize; touch-action: none;
-            box-shadow: inset 0 2px 6px rgba(0,0,0,0.9);
+        /* Ses Seviyesi (Volume) Potu */
+        .volume-control { display: flex; align-items: center; gap: 8px; color: #b09b85; font-size: 0.7rem; }
+        .volume-slider {
+            -webkit-appearance: none; width: 90px; height: 6px; background: #2b180d;
+            border-radius: 3px; outline: none; border: 1px solid #4a3008;
         }
-        .scale-bar { position: relative; height: 18px; width: 100%; }
-        .scale-line { position: absolute; top: 8px; left: 0; right: 0; height: 2px; background: #b8860b; }
-        .scale-needle {
-            position: absolute; top: 0px; width: 3px; height: 18px; background: #ff3333;
-            box-shadow: 0 0 8px #ff3333; transform: translateX(-50%); transition: left 0.05s linear; z-index: 5;
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+            background: linear-gradient(to bottom, #f3e5ab, #b8860b); cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
-        .scale-labels { display: flex; justify-content: space-between; font-size: 0.55rem; color: #b09b85; margin-top: 4px; }
 
-        .vu-meter { width: 100%; height: 22px; background: #dcd0ba; border: 2px solid #0f0703; border-radius: 4px; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: flex-end; }
-        .vu-needle { position: absolute; bottom: 2px; left: 50%; width: 1.5px; height: 16px; background: #8b0000; transform-origin: bottom center; transform: translateX(-50%) rotate(-25deg); transition: transform 0.1s ease; }
-
-        .status-footer { font-size: 0.65rem; color: #a39171; text-align: center; letter-spacing: 1px; }
+        .status-text { font-size: 0.65rem; color: #a39171; text-align: center; }
     </style>
 </head>
 <body>
 
-    <div class="radio-panel">
-        <div class="brand-header">
-            <div class="logo">RETRO-FM</div>
-            <button class="power-btn" id="powerBtn">GÜÇ: KAPALI</button>
-        </div>
+    <div class="radio-cabinet">
+        <div class="brass-badge">RETRO-FM v1.0</div>
 
         <div class="screen-box">
-            <div class="freq-text" id="freqDisplay">100.0 MHz</div>
-            <div class="station-text" id="stationDisplay">RADYO KAPALI</div>
-        </div>
-
-        <div class="vu-meter">
-            <div class="vu-needle" id="vuNeedle"></div>
+            <div class="freq-display" id="freqDisplay">100.0 MHz</div>
+            <div class="station-display" id="stationDisplay">RADYO KAPALI</div>
+            
+            <!-- Canlı Ekolayzır Çubukları -->
+            <div class="equalizer-container" id="eqContainer">
+                <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+                <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+                <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+                <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+            </div>
         </div>
 
         <div class="scale-container" id="scaleContainer">
@@ -80,10 +123,18 @@
             </div>
         </div>
 
-        <div class="status-footer" id="statusText">Skalayı sürükleyerek kanal arayın</div>
+        <div class="controls-row">
+            <button class="power-btn" id="powerBtn">GÜÇ: KAPALI</button>
+            
+            <div class="volume-control">
+                <span>SES</span>
+                <input type="range" id="volSlider" class="volume-slider" min="0" max="1" step="0.05" value="0.8">
+            </div>
+        </div>
+
+        <div class="status-text" id="statusText">Güç düğmesine basarak radyoyu açın</div>
     </div>
 
-    <!-- Gizli Oynatıcı Elementi -->
     <audio id="audioPlayer"></audio>
 
     <script>
@@ -95,12 +146,10 @@
             { freq: 90.4, name: "Süper FM", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/SUPER_FMAAC_SC.aac" },
             { freq: 91.0, name: "Kral FM", url: "https://ssli.kralgrup.com/kralfm" },
             { freq: 92.0, name: "Kral Pop", url: "https://ssli.kralgrup.com/kralpop" },
-            { freq: 95.8, name: "Show Radyo", url: "https://icast.showradyo.com.tr/showradyo" },
             { freq: 96.2, name: "Metro FM", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/METRO_FMAAC_SC.aac" },
             { freq: 100.0, name: "Power FM", url: "https://icecast.powerfm.org/powerfm.mp3" },
             { freq: 100.6, name: "Joy FM", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/JOY_FMAAC_SC.aac" },
             { freq: 101.0, name: "Virgin Radio", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/VIRGIN_RADIOAAC.aac" },
-            { freq: 105.0, name: "Alem FM", url: "https://turkmedya.radyotvonline.net/alemfm/playlist.m3u8" },
             { freq: 108.0, name: "Power Türk", url: "https://icecast.powerfm.org/powerturk.mp3" }
         ];
 
@@ -116,12 +165,14 @@
         const statusText = document.getElementById('statusText');
         const scaleContainer = document.getElementById('scaleContainer');
         const scaleNeedle = document.getElementById('scaleNeedle');
-        const vuNeedle = document.getElementById('vuNeedle');
+        const volSlider = document.getElementById('volSlider');
         const audio = document.getElementById('audioPlayer');
+        const eqBars = document.querySelectorAll('.eq-bar');
 
         let audioCtx = null;
         let noiseGain = null;
 
+        // Cızırtı Ses Motoru
         function initNoise() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (!noiseGain) {
@@ -147,6 +198,20 @@
             if (noiseGain && audioCtx) noiseGain.gain.setValueAtTime(vol, audioCtx.currentTime);
         }
 
+        // Görsel Ekolayzır Animasyonu
+        setInterval(() => {
+            eqBars.forEach(bar => {
+                if (isPoweredOn && !audio.paused) {
+                    let height = Math.floor(Math.random() * 85) + 15;
+                    bar.style.height = height + '%';
+                    bar.classList.add('active');
+                } else {
+                    bar.style.height = '10%';
+                    bar.classList.remove('active');
+                }
+            });
+        }, 90);
+
         function updateDisplay(freq) {
             freqDisplay.innerText = freq.toFixed(1) + " MHz";
             let percent = ((freq - minFreq) / (maxFreq - minFreq)) * 100;
@@ -157,14 +222,12 @@
             statusText.innerText = "Bağlanıyor: " + station.name;
             stationDisplay.innerText = station.name;
 
-            // Önceki yayın akışını ve HLS nesnesini temizle
             if (hlsPlayer) { hlsPlayer.destroy(); hlsPlayer = null; }
             audio.pause();
             audio.src = "";
 
             const targetUrl = PROXY_URL + encodeURIComponent(station.url);
 
-            // M3U8 / HLS Yayını mı Kontrol Et
             if (station.url.includes('.m3u8') && Hls.isSupported()) {
                 hlsPlayer = new Hls();
                 hlsPlayer.loadSource(targetUrl);
@@ -172,20 +235,22 @@
                 hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => {
                     audio.play().then(() => statusText.innerText = "YAYINDA: " + station.name);
                 });
-                hlsPlayer.on(Hls.Events.ERROR, () => {
-                    statusText.innerText = "Yayın Başlatılamadı";
-                });
             } else {
-                // Standart MP3 / AAC Akışı
                 audio.src = targetUrl;
                 audio.play().then(() => {
                     statusText.innerText = "YAYINDA: " + station.name;
                 }).catch(() => {
-                    statusText.innerText = "Yayın Başlatılamadı";
+                    statusText.innerText = "Sinyal Zayıf / Yayın Başlatılamadı";
                 });
             }
         }
 
+        // Ses Potansiyometresi Kontrolü
+        volSlider.addEventListener('input', (e) => {
+            audio.volume = e.target.value;
+        });
+
+        // Sürükleme ve Frekans Ayarı
         let isDragging = false;
 
         function handleMove(clientX) {
@@ -208,7 +273,7 @@
             isDragging = false;
 
             setNoiseVolume(0);
-            audio.volume = 1.0;
+            audio.volume = volSlider.value;
 
             let closest = stations.reduce((prev, curr) => 
                 Math.abs(curr.freq - currentFreq) < Math.abs(prev.freq - currentFreq) ? curr : prev
@@ -226,15 +291,6 @@
         scaleContainer.addEventListener('touchstart', (e) => { isDragging = true; initNoise(); handleMove(e.touches[0].clientX); });
         window.addEventListener('touchmove', (e) => { if (isDragging) handleMove(e.touches[0].clientX); });
         window.addEventListener('touchend', () => { if (isDragging) handleEnd(); });
-
-        setInterval(() => {
-            if (isPoweredOn) {
-                let angle = -20 + (Math.random() * 40);
-                vuNeedle.style.transform = `translateX(-50%) rotate(${angle}deg)`;
-            } else {
-                vuNeedle.style.transform = `translateX(-50%) rotate(-25deg)`;
-            }
-        }, 100);
 
         powerBtn.onclick = () => {
             isPoweredOn = !isPoweredOn;
