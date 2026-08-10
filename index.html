@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RetroFM · Live Edition</title>
+    <title>RetroFM · Universal Player</title>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Special+Elite&display=swap" rel="stylesheet">
+    <!-- M3U8 / HLS Yayın Desteği İçin Kütüphane -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
         body, html { width: 100%; height: 100%; overflow: hidden; font-family: 'Share Tech Mono', monospace; background: #0c0806; display: flex; justify-content: center; align-items: center; }
@@ -80,17 +83,24 @@
         <div class="status-footer" id="statusText">Skalayı sürükleyerek kanal arayın</div>
     </div>
 
+    <!-- Gizli Oynatıcı Elementi -->
+    <audio id="audioPlayer"></audio>
+
     <script>
         const PROXY_URL = "https://retro-proxy-pt9j.onrender.com/stream?url=";
 
-        // Canlıda (HTTPS) %100 Çalışan Doğrudan Akışlar
         const stations = [
+            { freq: 87.7, name: "Slow Türk", url: "https://ssli.kralgrup.com/slowturk" },
             { freq: 89.0, name: "Joy Türk", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/JOY_TURKAAC_SC.aac" },
             { freq: 90.4, name: "Süper FM", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/SUPER_FMAAC_SC.aac" },
+            { freq: 91.0, name: "Kral FM", url: "https://ssli.kralgrup.com/kralfm" },
+            { freq: 92.0, name: "Kral Pop", url: "https://ssli.kralgrup.com/kralpop" },
+            { freq: 95.8, name: "Show Radyo", url: "https://icast.showradyo.com.tr/showradyo" },
             { freq: 96.2, name: "Metro FM", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/METRO_FMAAC_SC.aac" },
             { freq: 100.0, name: "Power FM", url: "https://icecast.powerfm.org/powerfm.mp3" },
             { freq: 100.6, name: "Joy FM", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/JOY_FMAAC_SC.aac" },
             { freq: 101.0, name: "Virgin Radio", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/VIRGIN_RADIOAAC.aac" },
+            { freq: 105.0, name: "Alem FM", url: "https://turkmedya.radyotvonline.net/alemfm/playlist.m3u8" },
             { freq: 108.0, name: "Power Türk", url: "https://icecast.powerfm.org/powerturk.mp3" }
         ];
 
@@ -98,7 +108,7 @@
         const maxFreq = 108.0;
         let currentFreq = 100.0;
         let isPoweredOn = false;
-        let audio = null;
+        let hlsPlayer = null;
 
         const powerBtn = document.getElementById('powerBtn');
         const freqDisplay = document.getElementById('freqDisplay');
@@ -107,6 +117,7 @@
         const scaleContainer = document.getElementById('scaleContainer');
         const scaleNeedle = document.getElementById('scaleNeedle');
         const vuNeedle = document.getElementById('vuNeedle');
+        const audio = document.getElementById('audioPlayer');
 
         let audioCtx = null;
         let noiseGain = null;
@@ -146,17 +157,33 @@
             statusText.innerText = "Bağlanıyor: " + station.name;
             stationDisplay.innerText = station.name;
 
-            if (audio) { audio.pause(); audio.src = ""; }
+            // Önceki yayın akışını ve HLS nesnesini temizle
+            if (hlsPlayer) { hlsPlayer.destroy(); hlsPlayer = null; }
+            audio.pause();
+            audio.src = "";
 
-            audio = new Audio(PROXY_URL + encodeURIComponent(station.url));
-            audio.crossOrigin = "anonymous";
+            const targetUrl = PROXY_URL + encodeURIComponent(station.url);
 
-            audio.play().then(() => {
-                statusText.innerText = "YAYINDA: " + station.name;
-            }).catch((err) => {
-                statusText.innerText = "Yayın Hatası (Tekrar Deneyin)";
-                console.error(err);
-            });
+            // M3U8 / HLS Yayını mı Kontrol Et
+            if (station.url.includes('.m3u8') && Hls.isSupported()) {
+                hlsPlayer = new Hls();
+                hlsPlayer.loadSource(targetUrl);
+                hlsPlayer.attachMedia(audio);
+                hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => {
+                    audio.play().then(() => statusText.innerText = "YAYINDA: " + station.name);
+                });
+                hlsPlayer.on(Hls.Events.ERROR, () => {
+                    statusText.innerText = "Yayın Başlatılamadı";
+                });
+            } else {
+                // Standart MP3 / AAC Akışı
+                audio.src = targetUrl;
+                audio.play().then(() => {
+                    statusText.innerText = "YAYINDA: " + station.name;
+                }).catch(() => {
+                    statusText.innerText = "Yayın Başlatılamadı";
+                });
+            }
         }
 
         let isDragging = false;
@@ -170,7 +197,7 @@
             currentFreq = minFreq + (percent * (maxFreq - minFreq));
             updateDisplay(currentFreq);
 
-            if (audio) audio.volume = 0.05;
+            audio.volume = 0.05;
             setNoiseVolume(0.2);
             statusText.innerText = "Frekans Aranıyor...";
             stationDisplay.innerText = "PARAZİT...";
@@ -181,7 +208,7 @@
             isDragging = false;
 
             setNoiseVolume(0);
-            if (audio) audio.volume = 1.0;
+            audio.volume = 1.0;
 
             let closest = stations.reduce((prev, curr) => 
                 Math.abs(curr.freq - currentFreq) < Math.abs(prev.freq - currentFreq) ? curr : prev
@@ -225,7 +252,8 @@
             } else {
                 powerBtn.classList.remove('active');
                 powerBtn.innerText = "GÜÇ: KAPALI";
-                if (audio) { audio.pause(); audio.src = ""; }
+                if (hlsPlayer) { hlsPlayer.destroy(); hlsPlayer = null; }
+                audio.pause(); audio.src = "";
                 setNoiseVolume(0);
                 stationDisplay.innerText = "RADYO KAPALI";
                 statusText.innerText = "Güç kapalı";
