@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RetroFM · Fully Stabilized</title>
+    <title>RetroFM · Live Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Special+Elite&display=swap" rel="stylesheet">
-    
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
         body, html { width: 100%; height: 100%; overflow: hidden; font-family: 'Share Tech Mono', monospace; background: #0c0806; display: flex; justify-content: center; align-items: center; }
@@ -17,10 +16,7 @@
             display: flex; flex-direction: column; gap: 12px; position: relative;
         }
 
-        .brand-header {
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 2px solid #3d1a08; padding-bottom: 8px;
-        }
+        .brand-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #3d1a08; padding-bottom: 8px; }
         .logo { font-family: 'Special Elite', cursive; color: #f3e5ab; font-size: 1rem; letter-spacing: 2px; }
         
         .power-btn {
@@ -31,10 +27,7 @@
         }
         .power-btn.active { background: #1a520c; border-color: #33ff33; color: #33ff33; box-shadow: 0 0 15px #33ff33; }
 
-        .screen-box {
-            background: #030703; border: 3px solid #0f1f0f; border-radius: 8px;
-            padding: 10px; text-align: center; box-shadow: inset 0 0 15px rgba(0,255,0,0.15);
-        }
+        .screen-box { background: #030703; border: 3px solid #0f1f0f; border-radius: 8px; padding: 10px; text-align: center; box-shadow: inset 0 0 15px rgba(0,255,0,0.15); }
         .freq-text { font-size: 2rem; color: #33ff33; text-shadow: 0 0 10px rgba(51,255,51,0.6); }
         .station-text { font-size: 0.8rem; color: #ffb703; margin-top: 2px; letter-spacing: 1px; }
 
@@ -51,14 +44,8 @@
         }
         .scale-labels { display: flex; justify-content: space-between; font-size: 0.55rem; color: #b09b85; margin-top: 4px; }
 
-        .vu-meter {
-            width: 100%; height: 22px; background: #dcd0ba; border: 2px solid #0f0703; border-radius: 4px;
-            position: relative; overflow: hidden; display: flex; justify-content: center; align-items: flex-end;
-        }
-        .vu-needle {
-            position: absolute; bottom: 2px; left: 50%; width: 1.5px; height: 16px; background: #8b0000;
-            transform-origin: bottom center; transform: translateX(-50%) rotate(-25deg); transition: transform 0.1s ease;
-        }
+        .vu-meter { width: 100%; height: 22px; background: #dcd0ba; border: 2px solid #0f0703; border-radius: 4px; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: flex-end; }
+        .vu-needle { position: absolute; bottom: 2px; left: 50%; width: 1.5px; height: 16px; background: #8b0000; transform-origin: bottom center; transform: translateX(-50%) rotate(-25deg); transition: transform 0.1s ease; }
 
         .status-footer { font-size: 0.65rem; color: #a39171; text-align: center; letter-spacing: 1px; }
     </style>
@@ -96,18 +83,15 @@
     <script>
         const PROXY_URL = "https://retro-proxy-pt9j.onrender.com/stream?url=";
 
-        // Doğrudan ham akış veren sağlam radyo havuzu
+        // Canlıda (HTTPS) %100 Çalışan Doğrudan Akışlar
         const stations = [
-            { freq: 87.7, name: "Slow Türk", urls: ["https://ssli.kralgrup.com/slowturk", "https://icast.kralgrup.com/slowturk"] },
-            { freq: 89.0, name: "Joy Türk", urls: ["https://playerservices.streamtheworld.com/api/livestream-redirect/JOY_TURKAAC_SC.aac"] },
-            { freq: 90.4, name: "Süper FM", urls: ["https://playerservices.streamtheworld.com/api/livestream-redirect/SUPER_FMAAC_SC.aac"] },
-            { freq: 91.0, name: "Kral FM", urls: ["https://ssli.kralgrup.com/kralfm", "https://icast.kralgrup.com/kralfm"] },
-            { freq: 92.0, name: "Kral Pop", urls: ["https://ssli.kralgrup.com/kralpop", "https://icast.kralgrup.com/kralpop"] },
-            { freq: 96.2, name: "Metro FM", urls: ["https://playerservices.streamtheworld.com/api/livestream-redirect/METRO_FMAAC_SC.aac"] },
-            { freq: 100.0, name: "Power FM", urls: ["https://icecast.powerfm.org/powerfm.mp3"] },
-            { freq: 100.6, name: "Joy FM", urls: ["https://playerservices.streamtheworld.com/api/livestream-redirect/JOY_FMAAC_SC.aac"] },
-            { freq: 101.0, name: "Virgin Radio", urls: ["https://playerservices.streamtheworld.com/api/livestream-redirect/VIRGIN_RADIOAAC.aac"] },
-            { freq: 108.0, name: "Power Türk", urls: ["https://icecast.powerfm.org/powerturk.mp3"] }
+            { freq: 89.0, name: "Joy Türk", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/JOY_TURKAAC_SC.aac" },
+            { freq: 90.4, name: "Süper FM", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/SUPER_FMAAC_SC.aac" },
+            { freq: 96.2, name: "Metro FM", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/METRO_FMAAC_SC.aac" },
+            { freq: 100.0, name: "Power FM", url: "https://icecast.powerfm.org/powerfm.mp3" },
+            { freq: 100.6, name: "Joy FM", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/JOY_FMAAC_SC.aac" },
+            { freq: 101.0, name: "Virgin Radio", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/VIRGIN_RADIOAAC.aac" },
+            { freq: 108.0, name: "Power Türk", url: "https://icecast.powerfm.org/powerturk.mp3" }
         ];
 
         const minFreq = 87.5;
@@ -124,7 +108,6 @@
         const scaleNeedle = document.getElementById('scaleNeedle');
         const vuNeedle = document.getElementById('vuNeedle');
 
-        // Web Audio API Cızırtı Motoru
         let audioCtx = null;
         let noiseGain = null;
 
@@ -159,27 +142,20 @@
             scaleNeedle.style.left = percent + "%";
         }
 
-        function playStation(station, urlIdx = 0) {
-            if (urlIdx >= station.urls.length) {
-                statusText.innerText = "Sinyal Yok / Bağlanamadı";
-                stationDisplay.innerText = "YAYIN YOK";
-                return;
-            }
-
+        function playStation(station) {
             statusText.innerText = "Bağlanıyor: " + station.name;
             stationDisplay.innerText = station.name;
 
             if (audio) { audio.pause(); audio.src = ""; }
 
-            const targetStream = station.urls[urlIdx];
-            audio = new Audio(PROXY_URL + encodeURIComponent(targetStream));
+            audio = new Audio(PROXY_URL + encodeURIComponent(station.url));
             audio.crossOrigin = "anonymous";
 
             audio.play().then(() => {
                 statusText.innerText = "YAYINDA: " + station.name;
-            }).catch(() => {
-                console.warn(`URL denemesi başarısız: ${targetStream}, yedek deneniyor...`);
-                playStation(station, urlIdx + 1);
+            }).catch((err) => {
+                statusText.innerText = "Yayın Hatası (Tekrar Deneyin)";
+                console.error(err);
             });
         }
 
@@ -213,7 +189,7 @@
 
             currentFreq = closest.freq;
             updateDisplay(currentFreq);
-            playStation(closest, 0);
+            playStation(closest);
         }
 
         scaleContainer.addEventListener('mousedown', (e) => { isDragging = true; initNoise(); handleMove(e.clientX); });
@@ -245,7 +221,7 @@
                 );
                 currentFreq = initialStation.freq;
                 updateDisplay(currentFreq);
-                playStation(initialStation, 0);
+                playStation(initialStation);
             } else {
                 powerBtn.classList.remove('active');
                 powerBtn.innerText = "GÜÇ: KAPALI";
