@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RetroFM · Robust Player</title>
+    <title>RetroFM · Smart Proxy Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Special+Elite&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
@@ -127,22 +126,22 @@
         <div class="status-text" id="statusText">Güç düğmesine basarak radyoyu açın</div>
     </div>
 
-    <!-- Oynatıcı Elementi -->
     <audio id="audioPlayer"></audio>
 
     <script>
-        // Çakılmayan Doğrudan CDN & Stream Akışları
+        const PROXY_BASE = "https://retro-proxy-pt9j.onrender.com/stream?channel=";
+
         const stations = [
-            { freq: 87.7, name: "Slow Türk", url: "https://stream.zeno.fm/f19q2m12y38uv" },
-            { freq: 89.0, name: "Joy Türk", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/JOY_TURKAAC_SC.aac" },
-            { freq: 90.4, name: "Süper FM", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/SUPER_FMAAC_SC.aac" },
-            { freq: 91.0, name: "Kral FM", url: "https://stream.zeno.fm/48m1v1q1x18uv" },
-            { freq: 92.0, name: "Kral Pop", url: "https://stream.zeno.fm/v34e56q1x18uv" },
-            { freq: 96.2, name: "Metro FM", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/METRO_FMAAC_SC.aac" },
-            { freq: 100.0, name: "Power FM", url: "https://icecast.powerfm.org/powerfm.mp3" },
-            { freq: 100.6, name: "Joy FM", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/JOY_FMAAC_SC.aac" },
-            { freq: 101.0, name: "Virgin Radio", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/VIRGIN_RADIOAAC.aac" },
-            { freq: 108.0, name: "Power Türk", url: "https://icecast.powerfm.org/powerturk.mp3" }
+            { freq: 87.7, name: "Slow Türk", key: "slowturk" },
+            { freq: 89.0, name: "Joy Türk", key: "joyturk" },
+            { freq: 90.4, name: "Süper FM", key: "superfm" },
+            { freq: 91.0, name: "Kral FM", key: "kralfm" },
+            { freq: 92.0, name: "Kral Pop", key: "kralpop" },
+            { freq: 96.2, name: "Metro FM", key: "metrofm" },
+            { freq: 100.0, name: "Power FM", key: "powerfm" },
+            { freq: 100.6, name: "Joy FM", key: "joyfm" },
+            { freq: 101.0, name: "Virgin Radio", key: "virgin" },
+            { freq: 108.0, name: "Power Türk", key: "powerturk" }
         ];
 
         const minFreq = 87.5;
@@ -211,23 +210,20 @@
             statusText.innerText = "Bağlanıyor: " + station.name;
             stationDisplay.innerText = station.name;
 
-            // Önceki yayını tamamen sıfırla
             audio.pause();
             audio.removeAttribute('src');
             audio.load();
 
-            // Yeni ses kaynağını yükle
-            audio.src = station.url;
+            audio.src = PROXY_BASE + station.key;
             audio.volume = volSlider.value;
 
-            // Kullanıcı etkileşimi sonrasındaki oynatma çağrısı
             let playPromise = audio.play();
             if (playPromise !== undefined) {
                 playPromise.then(() => {
                     statusText.innerText = "YAYINDA: " + station.name;
                 }).catch(err => {
-                    console.warn("Oynatma hatası yakalandı:", err);
-                    statusText.innerText = "Sinyal Zayıf (Tekrar Dokunun)";
+                    console.warn("Oynatma hatası:", err);
+                    statusText.innerText = "Sinyal Zayıf (Render Uyanıyor)";
                 });
             }
         }
@@ -256,6 +252,7 @@
             isDragging = false;
 
             setNoiseVolume(0);
+            audio.volume = volSlider.value;
 
             let closest = stations.reduce((prev, curr) => 
                 Math.abs(curr.freq - currentFreq) < Math.abs(prev.freq - currentFreq) ? curr : prev
